@@ -30,3 +30,9 @@ operating system, which is what this patch does. This is taken from an open (and
 4 year old) pull request on GitHub: https://github.com/signal11/hidapi/pull/40.
 
 See https://github.com/signal11/hidapi/issues/266 to understand why this is necessary.
+
+### Don't HIDDeviceOpen with kIOHIDOptionsTypeSeizeDevice on Mac
+
+This would give Firefox exclusive access to the underlying HID device, which
+would prevent other programs from using it. For example, this would break U2F in
+Chrome if a user had Firefox and Chrome open simultaneously.
