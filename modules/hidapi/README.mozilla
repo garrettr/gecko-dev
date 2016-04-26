@@ -1,0 +1,15 @@
+This is the multi-platform HIDAPI library from
+https://github.com/signal11/hidapi.
+
+Currently, we import only the shared hidapi headers (the hidapi/
+subdirectory) and the implementations for Windows (the windows/
+subdirectory), Mac OS X (the mac/ subdirectory), and Linux/hidraw (the
+linux/ subdirectory).
+
+Upstream code can be view at
+  https://github.com/signal11/hidapi
+
+and cloned by
+  git clone https://github.com/signal11/hidapi
+
+Current version: [commit b5b2e1779b6cd2edda3066bbbf0921a2d6b1c3c0].

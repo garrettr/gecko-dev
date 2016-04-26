@@ -60,4 +60,6 @@ external_dirs += [
     'media/libsoundtouch',
 ]
 
+external_dirs += ['modules/hidapi']
+
 DIRS += ['../../' + i for i in external_dirs]

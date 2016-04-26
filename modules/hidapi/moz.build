@@ -1,0 +1,33 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Map supported OS targets to corresponding source directories.
+os_targets = {
+    'WINNT':  'windows',
+    'Darwin': 'mac',
+    'Linux':  'linux',
+}
+
+if CONFIG['OS_TARGET'] in os_targets:
+    # TODO: Do I need to add libudeb to USE_LIBS for Linux?
+
+    # TODO: And if so, should I use dom/gamepad/linux/udev.h? It's a
+    # wrapper around udev "so we can avoid linking directly to it and
+    # use dlopen instead".
+    
+    EXPORTS += [
+        'hidapi.h',
+    ]
+
+    UNIFIED_SOURCES += [os_targets[CONFIG['OS_TARGET']] + '/hid.c']
+
+    Library('hidapi')
+
+# TODO: What should be done when building on an unsupported platform?
+# Only defining EXPORTS and Library('hidapi') if the platform is
+# supported seems reasonable to me, but I'm not sure if that's the
+# best practice.
+
