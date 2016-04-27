@@ -1,0 +1,32 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+interface nsISimpleEnumerator;
+interface nsIHidDeviceInfo;
+interface nsIHidConnection;
+
+[scriptable, function, uuid(654e4958-620b-419d-9242-073a076a0d69)]
+interface nsIHidGetDevicesCallback : nsISupports {
+  void callback(in nsresult aStatus,
+                in nsISimpleEnumerator /* nsIHidDeviceInfo */ aDevices);
+};
+
+[scriptable, function, uuid(4ba58b94-86d3-433e-b21a-1ca9a89b07f4)]
+interface nsIHidConnectCallback : nsISupports {
+  void callback(in nsresult aStatus,
+                in nsIHidConnection aConnection);
+};
+
+[scriptable, uuid(b7a8f508-b76a-41ad-a959-7204aac2802f)]
+interface nsIHidService : nsISupports
+{
+  void getDevices(in nsIHidGetDevicesCallback aCallback);
+
+  void connect(in nsIHidDeviceInfo aDeviceInfo,
+               in nsIHidConnectCallback aCallback);
+};
+
+

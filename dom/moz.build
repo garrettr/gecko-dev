@@ -66,6 +66,7 @@ DIRS += [
     'filesystem',
     'fmradio',
     'geolocation',
+    'hid',
     'html',
     'icc',
     'inputport',
