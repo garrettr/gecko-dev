@@ -1,0 +1,31 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(3caf9413-dd1b-45d7-a2e9-b1f972a40a77)]
+interface nsIHidDeviceInfo : nsISupports
+{
+  readonly attribute ACString deviceId;
+
+  readonly attribute unsigned short vendorId;
+  readonly attribute unsigned short productId;
+
+  readonly attribute AString manufacturerName;
+  readonly attribute AString productName;
+  readonly attribute AString serialNumber;
+
+  readonly attribute unsigned short usagePage;
+  readonly attribute unsigned short usage;
+
+  readonly attribute unsigned long maxInputReportSize;
+  readonly attribute unsigned long maxOutputReportSize;
+  readonly attribute unsigned long maxFeatureReportSize;
+
+  readonly attribute boolean hasReportId;
+
+  // TODO (?) from chrome.hid:
+  //   * collections
+  //   * reportDescriptor
+};

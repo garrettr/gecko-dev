@@ -63,6 +63,7 @@ DIRS += [
     'flyweb',
     'fmradio',
     'geolocation',
+    'hid',
     'html',
     'icc',
     'inputport',

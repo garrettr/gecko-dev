@@ -1,0 +1,38 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+TEST_DIRS += ['tests']
+
+XPIDL_SOURCES += [
+    #'nsIHidConnection.idl',
+    'nsIHidDeviceInfo.idl',
+    'nsIHidService.idl',
+]
+
+XPIDL_MODULE = 'hid'
+
+EXPORTS += [
+    #'HidConnection.h',
+    'HidDeviceInfo.h',
+    'HidService.h',
+]
+
+UNIFIED_SOURCES += [
+    #'HidConnection.cpp',
+    'HidDeviceInfo.cpp',
+    'HidService.cpp',
+]
+
+toolkit = CONFIG['MOZ_WIDGET_TOOLKIT']
+
+if toolkit == 'cocoa':
+    DIRS += ['mac']
+elif toolkit == 'windows':
+    DIRS += ['windows']
+elif toolkit in ('gtk2', 'gtk3', 'qt'):
+    DIRS += ['linux']
+
+FINAL_LIBRARY = 'xul'
