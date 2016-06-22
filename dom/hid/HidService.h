@@ -31,28 +31,6 @@ extern LazyLogModule gHidServiceLog;
 // Some things to investigate:
 // - NewRunnable{Function,Method}
 
-class GetDevicesResultTask final : public mozilla::Runnable
-{
-  public:
-    GetDevicesResultTask(const nsMainThreadPtrHandle<nsIHidGetDevicesCallback> aCallback)
-      : mCallback(aCallback)
-    {
-      MOZ_ASSERT(!NS_IsMainThread()); // This should be running on the worker thread
-      LOG(("In GetDevicesResultTask::GetDevicesResultTask"));
-    }
-
-    NS_IMETHOD Run()
-    {
-      MOZ_ASSERT(NS_IsMainThread()); // This method is supposed to run on the main thread!
-      LOG(("In GetDevicesResultTask::Run"));
-      mCallback->Callback(NS_OK, nullptr);
-      return NS_OK;
-    }
-
-  private:
-    nsMainThreadPtrHandle<nsIHidGetDevicesCallback> mCallback;
-};
-
 class GetDevicesTask final : public mozilla::Runnable
 {
   public:
@@ -65,9 +43,15 @@ class GetDevicesTask final : public mozilla::Runnable
     NS_IMETHOD Run()
     {
       LOG(("In GetDevicesTask::Run"));
-      // TODO: all the actual work (call the corresponding Native* function)
-      nsCOMPtr<nsIRunnable> rr = new GetDevicesResultTask(mCallback);
-      NS_DispatchToMainThread(rr);
+      // TODO: We can make this safer by explicitly checking if we are on the
+      // expected HID Service worker thread. For an example, see
+      // WalkMemoryCacheRunnable::Run in CacheStorageService.cpp
+      if (!NS_IsMainThread()) {
+        // TODO: all the actual work (call the corresponding Native* function)
+        NS_DispatchToMainThread(this);
+      } else {
+        mCallback->Callback(NS_OK, nullptr);
+      }
       return NS_OK;
     }
 
