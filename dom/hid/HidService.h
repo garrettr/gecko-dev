@@ -22,47 +22,10 @@
 namespace mozilla {
 namespace dom {
 
-extern LazyLogModule gHidServiceLog;
-#define LOG(args) MOZ_LOG(gHidServiceLog, mozilla::LogLevel::Debug, args)
-#define LOG_ENABLED() MOZ_LOG_TEST(gHidServiceLog, mozilla::LogLevel::Debug)
-
-// XXX: There's a lot of repetitive boilerplate with this style of implementing runnables.
-// Is there a simpler way to do it?
-// Some things to investigate:
-// - NewRunnable{Function,Method}
-
-class GetDevicesTask final : public mozilla::Runnable
-{
-  public:
-    GetDevicesTask(nsIHidGetDevicesCallback* aCallback)
-      : mCallback(new nsMainThreadPtrHolder<nsIHidGetDevicesCallback>(aCallback))
-    {
-      LOG(("In GetDevicesTask::GetDevicesTask"));
-    }
-
-    NS_IMETHOD Run()
-    {
-      LOG(("In GetDevicesTask::Run"));
-      // TODO: We can make this safer by explicitly checking if we are on the
-      // expected HID Service worker thread. For an example, see
-      // WalkMemoryCacheRunnable::Run in CacheStorageService.cpp
-      if (!NS_IsMainThread()) {
-        // TODO: all the actual work (call the corresponding Native* function)
-        NS_DispatchToMainThread(this);
-      } else {
-        mCallback->Callback(NS_OK, nullptr);
-      }
-      return NS_OK;
-    }
-
-  private:
-    nsMainThreadPtrHandle<nsIHidGetDevicesCallback> mCallback;
-};
-
 class HidService : public nsIHidService
 {
   public:
-    NS_DECL_ISUPPORTS
+    NS_DECL_THREADSAFE_ISUPPORTS
     NS_DECL_NSIHIDSERVICE
 
     static already_AddRefed<HidService> GetInstance();
@@ -80,6 +43,10 @@ class HidService : public nsIHidService
 
     // Platform-specific methods
     virtual nsresult NativeGetDevices() = 0;
+
+    // Make the runnables friend class so they can call the private Native*
+    // methods on HidService.
+    friend class GetDevicesTask;
 
     // HID Service singleton
     static StaticRefPtr<HidService> sHidService;

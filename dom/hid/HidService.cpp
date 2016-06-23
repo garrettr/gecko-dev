@@ -49,9 +49,13 @@ HidService::GetInstance()
     MOZ_CRASH("Non-chrome processes should not get here.");
   }
 
-  NS_ASSERTION(NS_IsMainThread(), "Main thread only");
-
   if (!sHidService) {
+    // TODO: Do I need to do anything else to avoid potential issues from
+    // concurrent access? NS_DECL_THREADSAFE_ISUPPORTS appears to have disabled
+    // the "not thread-safe" check that was tripping me up earlier, but I'm not
+    // sure if that means that I need to ensure thread safety on my own nowl
+    NS_ASSERTION(NS_IsMainThread(), "Main thread only");
+
 #ifdef XP_MACOSX
     sHidService = new MacHidService();
 #elif defined(XP_WIN)
@@ -59,6 +63,7 @@ HidService::GetInstance()
 #elif defined(XP_LINUX)
     sHidService = new LinuxHidService();
 #endif
+
     // TODO: error handling for Init?
     sHidService->Init();
   }
@@ -94,6 +99,42 @@ HidService::Shutdown()
     mThread->Shutdown();
   }
 }
+
+// XXX: There's a lot of repetitive boilerplate with this style of implementing runnables.
+// Is there a simpler way to do it?
+// Some things to investigate:
+// - NewRunnable{Function,Method}
+
+class GetDevicesTask final : public mozilla::Runnable
+{
+  public:
+    GetDevicesTask(nsIHidGetDevicesCallback* aCallback)
+      : mCallback(new nsMainThreadPtrHolder<nsIHidGetDevicesCallback>(aCallback))
+    {
+      LOG(("In GetDevicesTask::GetDevicesTask"));
+    }
+
+    NS_IMETHOD Run()
+    {
+      LOG(("In GetDevicesTask::Run"));
+      // TODO: We can make this safer by explicitly checking if we are on the
+      // expected HID Service worker thread. For an example, see
+      // WalkMemoryCacheRunnable::Run in CacheStorageService.cpp
+      if (!NS_IsMainThread()) {
+        // TODO: all the actual work (call the corresponding Native* function)
+        // TODO: This is a little awkward. Can we avoid having to get the HidService again?
+        RefPtr<HidService> hs = HidService::GetInstance();
+        nsresult rv = hs->NativeGetDevices();
+        NS_DispatchToMainThread(this);
+      } else {
+        mCallback->Callback(NS_OK, nullptr);
+      }
+      return NS_OK;
+    }
+
+  private:
+    nsMainThreadPtrHandle<nsIHidGetDevicesCallback> mCallback;
+};
 
 NS_IMETHODIMP
 HidService::GetDevices(nsIHidGetDevicesCallback* aCallback)
