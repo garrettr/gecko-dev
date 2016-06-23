@@ -100,48 +100,18 @@ HidService::Shutdown()
   }
 }
 
-// XXX: There's a lot of repetitive boilerplate with this style of implementing runnables.
-// Is there a simpler way to do it?
-// Some things to investigate:
-// - NewRunnable{Function,Method}
-
-class GetDevicesTask final : public mozilla::Runnable
-{
-  public:
-    GetDevicesTask(nsIHidGetDevicesCallback* aCallback)
-      : mCallback(new nsMainThreadPtrHolder<nsIHidGetDevicesCallback>(aCallback))
-    {
-      LOG(("In GetDevicesTask::GetDevicesTask"));
-    }
-
-    NS_IMETHOD Run()
-    {
-      LOG(("In GetDevicesTask::Run"));
-      // TODO: We can make this safer by explicitly checking if we are on the
-      // expected HID Service worker thread. For an example, see
-      // WalkMemoryCacheRunnable::Run in CacheStorageService.cpp
-      if (!NS_IsMainThread()) {
-        // TODO: all the actual work (call the corresponding Native* function)
-        // TODO: This is a little awkward. Can we avoid having to get the HidService again?
-        RefPtr<HidService> hs = HidService::GetInstance();
-        nsresult rv = hs->NativeGetDevices();
-        NS_DispatchToMainThread(this);
-      } else {
-        mCallback->Callback(NS_OK, nullptr);
-      }
-      return NS_OK;
-    }
-
-  private:
-    nsMainThreadPtrHandle<nsIHidGetDevicesCallback> mCallback;
-};
-
 NS_IMETHODIMP
 HidService::GetDevices(nsIHidGetDevicesCallback* aCallback)
 {
   LOG(("In HidService::GetDevices"));
-  nsCOMPtr<nsIRunnable> r = new GetDevicesTask(aCallback);
-  mThread->Dispatch(r, nsIEventTarget::DISPATCH_NORMAL);
+  MOZ_ASSERT(NS_IsMainThread());
+
+  GetDevicesCallbackHandle cbh;
+  cbh = new nsMainThreadPtrHolder<nsIHidGetDevicesCallback>(aCallback);
+  mThread->Dispatch(NewRunnableMethod<GetDevicesCallbackHandle>(
+        this, &HidService::NativeGetDevices, cbh),
+      nsIEventTarget::DISPATCH_NORMAL);
+
   return NS_OK;
 }
 

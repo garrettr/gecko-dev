@@ -30,7 +30,7 @@ class MacHidService final : public HidService
   private:
     ~MacHidService() {};
 
-    virtual nsresult NativeGetDevices() override;
+    virtual nsresult NativeGetDevices(GetDevicesCallbackHandle aCallback) override;
 };
 
 } // namespace dom

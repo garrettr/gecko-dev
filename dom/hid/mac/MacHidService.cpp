@@ -17,9 +17,15 @@ extern LazyLogModule gHidServiceLog;
 #define LOG_ENABLED() MOZ_LOG_TEST(gHidServiceLog, mozilla::LogLevel::Debug)
 
 nsresult
-MacHidService::NativeGetDevices() {
+MacHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
   // Stub, just proving out the OOP architecture right now
   LOG(("In MacHidService::NativeGetDevices()"));
+  // TODO: actually do the work (enumerate available HID devices)
+  NS_DispatchToMainThread(NS_NewRunnableFunction(
+    [aCallback] () mutable -> void {
+      aCallback->Callback(NS_OK, nullptr);
+    }
+  ));
   return NS_OK;
 }
 
