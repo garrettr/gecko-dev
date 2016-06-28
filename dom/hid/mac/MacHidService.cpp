@@ -68,8 +68,6 @@ MacHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
   LOG(("In MacHidService::NativeGetDevices()"));
   MOZ_ASSERT(mManager);
 
-  nsresult rv = NS_OK;
-
   // TODO: Do I need to process_pending_events() like hidapi does?
   // See c43255b4 in hidapi
   IOHIDManagerSetDeviceMatching(mManager, NULL);
@@ -95,28 +93,25 @@ MacHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
     */
 
     // Gather information for HidDeviceInfo
-    /*
-    CFNumberRef vendorIdRef =
-      (CFNumberRef) IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
-    CFNumberRef productIdRef =
-      (CFNumberRef) IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
-    int vendorId, productId;
-    CFNumberGetValue(vendorIdRef, kCFNumberIntType, &vendorId);
-    CFNumberGetValue(productIdRef, kCFNumberIntType, &productId);
-    */
+    // TODO: int16_t vs. int32_t?
+    int32_t vendorId, productId, usagePage, usage, maxInputReportSize,
+            maxOutputReportSize, maxFeatureReportSize;
+    vendorId = GetHidIntProperty(device, CFSTR(kIOHIDVendorIDKey));
+    productId = GetHidIntProperty(device, CFSTR(kIOHIDProductIDKey));
+    usagePage = GetHidIntProperty(device, CFSTR(
 
     nsCOMPtr<nsIHidDeviceInfo> deviceInfo = new HidDeviceInfo();
     deviceInfoArray.AppendObject(deviceInfo);
   }
 
-  nsCOMPtr<nsISimpleEnumerator> deviceEnumerator;
-  rv = NS_NewArrayEnumerator(getter_AddRefs(deviceEnumerator),
-                             deviceInfoArray);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   NS_DispatchToMainThread(NS_NewRunnableFunction(
-    [aCallback, deviceEnumerator] () mutable -> void {
-      aCallback->Callback(NS_OK, deviceEnumerator);
+    [aCallback, deviceInfoArray] () mutable -> void {
+      // nsISimpleEnumerator is not thread-safe, so it has to be constructed on
+      // the main thread.
+      nsCOMPtr<nsISimpleEnumerator> deviceEnumerator;
+      nsresult rv = NS_NewArrayEnumerator(getter_AddRefs(deviceEnumerator),
+                                          deviceInfoArray);
+      aCallback->Callback(rv, deviceEnumerator);
     }
   ));
   return NS_OK;

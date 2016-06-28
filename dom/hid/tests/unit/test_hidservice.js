@@ -14,7 +14,7 @@ function run_test() {
     //dump("Inside the JS getDevicesCallback");
     while(aDevices.hasMoreElements()) {
       let device = aDevices.getNext().QueryInterface(Ci.nsIHidDeviceInfo);
-      dump("Enumerated a HID device");
+      dump("Enumerated a HID device\n");
     }
     do_test_finished();
   });

@@ -18,7 +18,7 @@ namespace dom {
 class HidDeviceInfo final: public nsIHidDeviceInfo
 {
   public:
-    NS_DECL_ISUPPORTS
+    NS_DECL_THREADSAFE_ISUPPORTS
     NS_DECL_NSIHIDDEVICEINFO
 
     HidDeviceInfo();
