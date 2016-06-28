@@ -11,7 +11,11 @@ function run_test() {
 
   let hidService = Cc["@mozilla.org/dom/hid-service;1"].getService(Ci.nsIHidService);
   hidService.getDevices(function getDevicesCallback(aStatus, aDevices) {
-    dump("Inside the JS getDevicesCallback");
+    //dump("Inside the JS getDevicesCallback");
+    while(aDevices.hasMoreElements()) {
+      let device = aDevices.getNext().QueryInterface(Ci.nsIHidDeviceInfo);
+      dump("Enumerated a HID device");
+    }
     do_test_finished();
   });
 }

@@ -86,6 +86,9 @@ HidService::Init()
 {
   nsresult rv = NS_NewNamedThread("HID Service", getter_AddRefs(mThread));
   NS_ENSURE_SUCCESS_VOID(rv);
+
+  // Platform-specific setup
+  NativeInit();
 }
 
 void
@@ -98,6 +101,9 @@ HidService::Shutdown()
   if (mThread) {
     mThread->Shutdown();
   }
+
+  // Platform-specific cleanup
+  NativeShutdown();
 }
 
 NS_IMETHODIMP

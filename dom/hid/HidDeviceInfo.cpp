@@ -23,6 +23,33 @@ HidDeviceInfo::HidDeviceInfo()
 {
 }
 
+HidDeviceInfo::HidDeviceInfo(nsACString aDeviceId,
+                             uint16_t aVendorId,
+                             uint16_t aProductId,
+                             nsAString aManufacturerName,
+                             nsAString aProductName,
+                             nsAString aSerialNumber,
+                             uint16_t aUsagePage,
+                             uint16_t aUsage,
+                             uint32_t aMaxInputReportSize,
+                             uint32_t aMaxOutputReportSize,
+                             uint32_t aMaxFeatureReportSize,
+                             bool aHasReportId)
+  : mDeviceId(aDeviceId),
+    mVendorId(aVendorId),
+    mProductId(aProductId),
+    mManufacturerName(aManufacturerName),
+    mProductName(aProductName),
+    mSerialNumber(aSerialNumber),
+    mUsagePage(aUsagePage),
+    mUsage(aUsage),
+    mMaxInputReportSize(aMaxInputReportSize),
+    mMaxOutputReportSize(aMaxOutputReportSize),
+    mMaxFeatureReportSize(aMaxFeatureReportSize),
+    mHasReportId(aHasReportId)
+{
+}
+
 HidDeviceInfo::~HidDeviceInfo()
 {
 }

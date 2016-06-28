@@ -44,6 +44,8 @@ class HidService : public nsIHidService
     void Shutdown();
 
     // Platform-specific methods
+    virtual void NativeInit() = 0;
+    virtual void NativeShutdown() = 0;
     virtual nsresult NativeGetDevices(GetDevicesCallbackHandle aCallback) = 0;
 
     // Make the runnables friend class so they can call the private Native*

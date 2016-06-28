@@ -22,6 +22,18 @@ class HidDeviceInfo final: public nsIHidDeviceInfo
     NS_DECL_NSIHIDDEVICEINFO
 
     HidDeviceInfo();
+    HidDeviceInfo(nsACString aDeviceId,
+                  uint16_t aVendorId,
+                  uint16_t aProductId,
+                  nsAString aManufacturerName,
+                  nsAString aProductName,
+                  nsAString aSerialNumber,
+                  uint16_t aUsagePage,
+                  uint16_t aUsage,
+                  uint32_t aMaxInputReportSize,
+                  uint32_t aMaxOutputReportSize,
+                  uint32_t aMaxFeatureReportSize,
+                  bool aHasReportId);
 
   private:
     ~HidDeviceInfo();
