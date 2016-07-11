@@ -23,12 +23,12 @@ HidDeviceInfo::HidDeviceInfo()
 {
 }
 
-HidDeviceInfo::HidDeviceInfo(nsACString aDeviceId,
+HidDeviceInfo::HidDeviceInfo(const nsACString& aDeviceId,
                              uint16_t aVendorId,
                              uint16_t aProductId,
-                             nsAString aManufacturerName,
-                             nsAString aProductName,
-                             nsAString aSerialNumber,
+                             const nsAString& aManufacturerName,
+                             const nsAString& aProductName,
+                             const nsAString& aSerialNumber,
                              uint16_t aUsagePage,
                              uint16_t aUsage,
                              uint32_t aMaxInputReportSize,
