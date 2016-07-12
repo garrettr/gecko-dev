@@ -86,22 +86,13 @@ void
 CFStringToMozString(CFStringRef cfstring,
                     nsAString& converted)
 {
-  // If we want to use UTF-16, we need to do some stuff to figure out endianness too.
-  // See https://cs.chromium.org/chromium/src/base/strings/sys_string_conversions_mac.mm
-  // TODO: It might just be easier to use UTF-8, although we would have to
-  // change the interface to use ACString instead of AString.
-  #if defined(IS_LITTLE_ENDIAN)
-  const CFStringEncoding nativeEncoding = kCFStringEncodingUTF16LE;
-  #else
-  const CFStringEncoding nativeEncoding = kCFStringEncodingUTF16BE;
-  #endif
-
-  CFIndex length = CFStringGetLength(cfstring);
-  if (length == 0) {
-    return;
-  }
-
-  // TODO
+  AutoTArray<UniChar, 32> buffer;
+  int size = CFStringGetLength(cfstring);
+  buffer.SetLength(size + 1);
+  CFRange range = CFRangeMake(0, size);
+  CFStringGetCharacters(cfstring, range, buffer.Elements());
+  buffer[size] = 0;
+  converted.Assign(reinterpret_cast<char16_t*>(buffer.Elements()));
 }
 
 bool

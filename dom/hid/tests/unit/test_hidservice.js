@@ -14,7 +14,12 @@ function run_test() {
     //dump("Inside the JS getDevicesCallback");
     while(aDevices.hasMoreElements()) {
       let device = aDevices.getNext().QueryInterface(Ci.nsIHidDeviceInfo);
-      dump("device.deviceId: " + device.deviceId + "\n");
+      if (device.manufacturerName == "Yubico") {
+        dump("device.manufacturerName: " + device.manufacturerName + "\n");
+        dump("device.productName: " + device.productName + "\n");
+        dump("device.deviceId: " + device.deviceId + "\n");
+        dump("\n");
+      }
       /*
       dump("Enumerated a HID device:\n");
       if (device.usagePage == 0xf1d0 && device.usage == 0x0001) {
