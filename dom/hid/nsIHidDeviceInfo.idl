@@ -23,8 +23,6 @@ interface nsIHidDeviceInfo : nsISupports
   readonly attribute unsigned long maxOutputReportSize;
   readonly attribute unsigned long maxFeatureReportSize;
 
-  readonly attribute boolean hasReportId;
-
   // TODO (?) from chrome.hid:
   //   * collections
   //   * reportDescriptor

@@ -163,8 +163,6 @@ GetHidDeviceInfoFromIOHIDDeviceRef(IOHIDDeviceRef device)
   GetHidStringProperty(device, CFSTR(kIOHIDProductKey), productName);
   GetHidStringProperty(device, CFSTR(kIOHIDSerialNumberKey), serialNumber);
 
-  // TODO: Bool properties
-
   nsCOMPtr<nsIHidDeviceInfo> deviceInfo = new HidDeviceInfo(
       deviceId,
       vendorId,
@@ -176,8 +174,7 @@ GetHidDeviceInfoFromIOHIDDeviceRef(IOHIDDeviceRef device)
       usage,
       maxInputReportSize,
       maxOutputReportSize,
-      maxFeatureReportSize,
-      false);
+      maxFeatureReportSize);
   return deviceInfo.forget();
 }
 

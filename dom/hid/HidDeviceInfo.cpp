@@ -33,8 +33,7 @@ HidDeviceInfo::HidDeviceInfo(const nsACString& aDeviceId,
                              uint16_t aUsage,
                              uint32_t aMaxInputReportSize,
                              uint32_t aMaxOutputReportSize,
-                             uint32_t aMaxFeatureReportSize,
-                             bool aHasReportId)
+                             uint32_t aMaxFeatureReportSize)
   : mDeviceId(aDeviceId),
     mVendorId(aVendorId),
     mProductId(aProductId),
@@ -45,8 +44,7 @@ HidDeviceInfo::HidDeviceInfo(const nsACString& aDeviceId,
     mUsage(aUsage),
     mMaxInputReportSize(aMaxInputReportSize),
     mMaxOutputReportSize(aMaxOutputReportSize),
-    mMaxFeatureReportSize(aMaxFeatureReportSize),
-    mHasReportId(aHasReportId)
+    mMaxFeatureReportSize(aMaxFeatureReportSize)
 {
 }
 
@@ -128,13 +126,6 @@ NS_IMETHODIMP
 HidDeviceInfo::GetMaxFeatureReportSize(uint32_t* aMaxFeatureReportSize)
 {
   *aMaxFeatureReportSize = mMaxFeatureReportSize;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-HidDeviceInfo::GetHasReportId(bool* aHasReportId)
-{
-  *aHasReportId = mHasReportId;
   return NS_OK;
 }
 

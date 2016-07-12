@@ -32,8 +32,7 @@ class HidDeviceInfo final: public nsIHidDeviceInfo
                   uint16_t aUsage,
                   uint32_t aMaxInputReportSize,
                   uint32_t aMaxOutputReportSize,
-                  uint32_t aMaxFeatureReportSize,
-                  bool aHasReportId);
+                  uint32_t aMaxFeatureReportSize);
 
   private:
     ~HidDeviceInfo();
@@ -53,8 +52,6 @@ class HidDeviceInfo final: public nsIHidDeviceInfo
     uint32_t mMaxInputReportSize;
     uint32_t mMaxOutputReportSize;
     uint32_t mMaxFeatureReportSize;
-
-    bool mHasReportId;
 };
 
 } // namespace dom

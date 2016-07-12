@@ -15,7 +15,6 @@ interface nsIHidDisconnectCallback : nsISupports {
 [scriptable, function, uuid(b2ee57cc-2a3c-4c98-ae01-0304bc6e0e9f)]
 interface nsIHidReceiveCallback : nsISupports {
   void callback(in nsresult aStatus,
-                in long aReportId,
                 [const, array, size_is(aLen)] in octet aData,
                 in unsigned long aLen);
 };
@@ -28,8 +27,6 @@ interface nsIHidSendCallback : nsISupports {
 [scriptable, function, uuid(5172ae73-3f9b-4c27-812e-74f70a1f46f2)]
 interface nsIHidReceiveFeatureReportCallback : nsISupports {
   void callback(in nsresult aStatus,
-                // TODO chrome includes the reportId in aData (?)
-                in long aReportId,
                 [const, array, size_is(aLen)] in octet aData,
                 in unsigned long aLen);
 };
@@ -46,16 +43,13 @@ interface nsIHidConnection : nsISupports
 
   void receive(in nsIHidReceiveCallback aCallback);
 
-  void send(in long aReportId,
-            [const, array, size_is(aLen)] in octet aData,
+  void send([const, array, size_is(aLen)] in octet aData,
             in unsigned long aLen,
             in nsIHidSendCallback aCallback);
 
-  void receiveFeatureReport(in long aReportId,
-                            in nsIHidReceiveFeatureReportCallback aCallback);
+  void receiveFeatureReport(in nsIHidReceiveFeatureReportCallback aCallback);
 
-  void sendFeatureReport(in long aReportId,
-                         [const, array, size_is(aLen)] in octet aData,
+  void sendFeatureReport([const, array, size_is(aLen)] in octet aData,
                          in unsigned long aLen,
                          in nsIHidSendFeatureReportCallback aCallback);
 };
