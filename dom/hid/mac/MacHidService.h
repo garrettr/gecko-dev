@@ -14,6 +14,7 @@
 #include <IOKit/hid/IOHIDBase.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <IOKit/hid/IOHIDManager.h>
+#include <IOKit/IOKitLib.h>
 
 namespace mozilla {
 namespace dom {

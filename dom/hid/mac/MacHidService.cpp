@@ -62,11 +62,139 @@ MacHidService::NativeShutdown()
   }
 }
 
+bool
+TryGetHidIntProperty(IOHIDDeviceRef device,
+                     CFStringRef key,
+                     int32_t* result)
+{
+  CFNumberRef ref = (CFNumberRef) IOHIDDeviceGetProperty(device, key);
+  return ref && CFNumberGetValue(ref, kCFNumberSInt32Type, result);
+}
+
+int32_t
+GetHidIntProperty(IOHIDDeviceRef device,
+                  CFStringRef key)
+{
+  int32_t value;
+  if (TryGetHidIntProperty(device, key, &value)) {
+    return value;
+  }
+  return 0;
+}
+
+void
+CFStringToMozString(CFStringRef cfstring,
+                    nsAString& converted)
+{
+  // If we want to use UTF-16, we need to do some stuff to figure out endianness too.
+  // See https://cs.chromium.org/chromium/src/base/strings/sys_string_conversions_mac.mm
+  // TODO: It might just be easier to use UTF-8, although we would have to
+  // change the interface to use ACString instead of AString.
+  #if defined(IS_LITTLE_ENDIAN)
+  const CFStringEncoding nativeEncoding = kCFStringEncodingUTF16LE;
+  #else
+  const CFStringEncoding nativeEncoding = kCFStringEncodingUTF16BE;
+  #endif
+
+  CFIndex length = CFStringGetLength(cfstring);
+  if (length == 0) {
+    return;
+  }
+
+  // TODO
+}
+
+bool
+TryGetHidStringProperty(IOHIDDeviceRef device,
+                        CFStringRef key,
+                        nsAString& result)
+{
+  CFStringRef ref = (CFStringRef) IOHIDDeviceGetProperty(device, key);
+  if (!ref) {
+    return false;
+  }
+  CFStringToMozString(ref, result);
+}
+
+// XXX: having separate Get and TryGet functions seems redundant for string properties.
+void
+GetHidStringProperty(IOHIDDeviceRef device,
+                     CFStringRef key,
+                     nsAString& result)
+{
+  TryGetHidStringProperty(device, key, result);
+}
+
+void
+GetDeviceIdFromIOHIDDeviceRef(IOHIDDeviceRef device,
+                              nsACString& result)
+{
+  // There are (at least) two options for getting a unique per-HID-interface
+  // identifier on Mac: IORegistryEntryGetPath and
+  // IORegistryEntryGetRegistryEntryID. Chrome uses the RegistryEntryID, which
+  // is a uint64_t, but as far as I can tell the RegistryEntryPath, a C string,
+  // is equivalent. We're using the path for now because it allows us to use a
+  // consistent type for the deviceId cross-platform.
+  kern_return_t res;
+  io_string_t path;
+  // IOHIDDeviceGetService is only available on Mac OS 10.6+, but that's ok
+  // because Firefox is only supported on 10.6+.
+  const io_service_t ioService = IOHIDDeviceGetService(device);
+  res = IORegistryEntryGetPath(ioService, kIOServicePlane, path);
+  if (res == KERN_SUCCESS) {
+    result.Assign(path);
+  }
+}
+
+already_AddRefed<nsIHidDeviceInfo>
+GetHidDeviceInfoFromIOHIDDeviceRef(IOHIDDeviceRef device)
+{
+  nsAutoCString deviceId;
+  GetDeviceIdFromIOHIDDeviceRef(device, deviceId);
+
+  // Int properties
+  // TODO: int16_t vs. int32_t?
+  int32_t vendorId, productId, usagePage, usage, maxInputReportSize,
+          maxOutputReportSize, maxFeatureReportSize;
+  vendorId = GetHidIntProperty(device, CFSTR(kIOHIDVendorIDKey));
+  productId = GetHidIntProperty(device, CFSTR(kIOHIDProductIDKey));
+  // TODO: Do we need to disambiguate the usages for interfaces vs devices here?
+  // See: "Matching HID Devices" on https://developer.apple.com/library/mac/documentation/DeviceDrivers/Conceptual/HID/new_api_10_5/tn2187.html
+  usagePage = GetHidIntProperty(device, CFSTR(kIOHIDPrimaryUsagePageKey));
+  usage = GetHidIntProperty(device, CFSTR(kIOHIDPrimaryUsageKey));
+  maxInputReportSize = GetHidIntProperty(device, CFSTR(kIOHIDMaxInputReportSizeKey));
+  maxOutputReportSize = GetHidIntProperty(device, CFSTR(kIOHIDMaxOutputReportSizeKey));
+  maxFeatureReportSize = GetHidIntProperty(device, CFSTR(kIOHIDMaxFeatureReportSizeKey));
+
+  // String properties
+  nsAutoString manufacturerName, productName, serialNumber;
+  GetHidStringProperty(device, CFSTR(kIOHIDManufacturerKey), manufacturerName);
+  GetHidStringProperty(device, CFSTR(kIOHIDProductKey), productName);
+  GetHidStringProperty(device, CFSTR(kIOHIDSerialNumberKey), serialNumber);
+
+  // TODO: Bool properties
+
+  nsCOMPtr<nsIHidDeviceInfo> deviceInfo = new HidDeviceInfo(
+      deviceId,
+      vendorId,
+      productId,
+      manufacturerName,
+      productName,
+      serialNumber,
+      usagePage,
+      usage,
+      maxInputReportSize,
+      maxOutputReportSize,
+      maxFeatureReportSize,
+      false);
+  return deviceInfo.forget();
+}
+
 nsresult
 MacHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
-  // Stub, just proving out the OOP architecture right now
   LOG(("In MacHidService::NativeGetDevices()"));
   MOZ_ASSERT(mManager);
+  MOZ_ASSERT(aCallback);
 
   // TODO: Do I need to process_pending_events() like hidapi does?
   // See c43255b4 in hidapi
@@ -84,23 +212,7 @@ MacHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
   nsCOMArray<nsIHidDeviceInfo> deviceInfoArray;
   for (uint32_t i = 0; i < numDevices; i++) {
     IOHIDDeviceRef device = deviceArray[i];
-
-    // XXX: do we need this? from hidapi mac/hid.c
-    /*
-    if (!device) {
-      continue;
-    }
-    */
-
-    // Gather information for HidDeviceInfo
-    // TODO: int16_t vs. int32_t?
-    int32_t vendorId, productId, usagePage, usage, maxInputReportSize,
-            maxOutputReportSize, maxFeatureReportSize;
-    vendorId = GetHidIntProperty(device, CFSTR(kIOHIDVendorIDKey));
-    productId = GetHidIntProperty(device, CFSTR(kIOHIDProductIDKey));
-    usagePage = GetHidIntProperty(device, CFSTR(
-
-    nsCOMPtr<nsIHidDeviceInfo> deviceInfo = new HidDeviceInfo();
+    nsCOMPtr<nsIHidDeviceInfo> deviceInfo = GetHidDeviceInfoFromIOHIDDeviceRef(device);
     deviceInfoArray.AppendObject(deviceInfo);
   }
 
