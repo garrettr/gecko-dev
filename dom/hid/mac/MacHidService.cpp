@@ -135,6 +135,9 @@ GetDeviceIdFromIOHIDDeviceRef(IOHIDDeviceRef device,
   if (res == KERN_SUCCESS) {
     result.Assign(path);
   }
+  // TODO: Should we indicate if this failed? Best thing to do is probably
+  // return NS_FAILED or similar, and pass the error condition up the stack so
+  // the device does not get added to the enumerator.
 }
 
 already_AddRefed<nsIHidDeviceInfo>
