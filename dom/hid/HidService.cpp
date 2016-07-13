@@ -117,7 +117,6 @@ HidService::GetDevices(nsIHidGetDevicesCallback* aCallback)
   mThread->Dispatch(NewRunnableMethod<GetDevicesCallbackHandle>(
         this, &HidService::NativeGetDevices, cbh),
       nsIEventTarget::DISPATCH_NORMAL);
-
   return NS_OK;
 }
 
@@ -125,7 +124,16 @@ NS_IMETHODIMP
 HidService::Connect(nsIHidDeviceInfo* aDeviceInfo,
                     nsIHidConnectCallback* aCallback)
 {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  LOG(("In HidService::Connect"));
+  MOZ_ASSERT(NS_IsMainThread());
+
+  ConnectCallbackHandle cbh;
+  cbh = new nsMainThreadPtrHolder<nsIHidConnectCallback>(aCallback);
+  mThread->Dispatch(
+      NewRunnableMethod<nsCOMPtr<nsIHidDeviceInfo>, ConnectCallbackHandle>(
+        this, &HidService::NativeConnect, aDeviceInfo, cbh),
+      nsIEventTarget::DISPATCH_NORMAL);
+  return NS_OK;
 }
 
 // b7a8f508-b76a-41ad-a959-7204aac2802f

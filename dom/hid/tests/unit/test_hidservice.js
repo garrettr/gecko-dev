@@ -11,23 +11,27 @@ function run_test() {
 
   let hidService = Cc["@mozilla.org/dom/hid-service;1"].getService(Ci.nsIHidService);
   hidService.getDevices(function getDevicesCallback(aStatus, aDevices) {
-    //dump("Inside the JS getDevicesCallback");
+    let u2fDevice = null;
     while(aDevices.hasMoreElements()) {
       let device = aDevices.getNext().QueryInterface(Ci.nsIHidDeviceInfo);
-      if (device.manufacturerName == "Yubico") {
-        dump("device.manufacturerName: " + device.manufacturerName + "\n");
-        dump("device.productName: " + device.productName + "\n");
-        dump("device.deviceId: " + device.deviceId + "\n");
-        dump("\n");
+      dump("Found device: " + device.manufacturerName + " " + device.productName + ": " + device.deviceId + "\n");
+      if (device.manufacturerName == "Yubico" &&
+          device.usagePage == 0xf1d0 &&
+          device.usage == 0x0001) {
+        dump("--> found Yubico U2F device\n");
+        u2fDevice = device;
+        break;
       }
-      /*
-      dump("Enumerated a HID device:\n");
-      if (device.usagePage == 0xf1d0 && device.usage == 0x0001) {
-        dump("  -> Enumerated a FIDO U2F device\n");
-      }
-      */
     }
-    do_test_finished();
+
+    if (u2fDevice) {
+      // Attempt to connect
+      dump("in js calling connect...\n");
+      hidService.connect(u2fDevice, function connectCallback(aStatus, aConnection) {
+        dump("in js connect callback\n");
+        do_test_finished();
+      });
+    }
   });
 }
 

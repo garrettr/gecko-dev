@@ -39,6 +39,8 @@ class MacHidService final : public HidService
     virtual void NativeInit() override;
     virtual void NativeShutdown() override;
     virtual nsresult NativeGetDevices(GetDevicesCallbackHandle aCallback) override;
+    virtual nsresult NativeConnect(nsIHidDeviceInfo* aDeviceInfo,
+                                   ConnectCallbackHandle aCallback) override;
 
     IOHIDManagerRef mManager;
 };

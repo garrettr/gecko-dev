@@ -7,7 +7,7 @@
 TEST_DIRS += ['tests']
 
 XPIDL_SOURCES += [
-    #'nsIHidConnection.idl',
+    'nsIHidConnection.idl',
     'nsIHidDeviceInfo.idl',
     'nsIHidService.idl',
 ]
@@ -15,13 +15,13 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = 'hid'
 
 EXPORTS += [
-    #'HidConnection.h',
+    'HidConnection.h',
     'HidDeviceInfo.h',
     'HidService.h',
 ]
 
 UNIFIED_SOURCES += [
-    #'HidConnection.cpp',
+    'HidConnection.cpp',
     'HidDeviceInfo.cpp',
     'HidService.cpp',
 ]

@@ -23,6 +23,7 @@ namespace mozilla {
 namespace dom {
 
 typedef nsMainThreadPtrHandle<nsIHidGetDevicesCallback> GetDevicesCallbackHandle;
+typedef nsMainThreadPtrHandle<nsIHidConnectCallback>    ConnectCallbackHandle;
 
 class HidService : public nsIHidService
 {
@@ -47,6 +48,8 @@ class HidService : public nsIHidService
     virtual void NativeInit() = 0;
     virtual void NativeShutdown() = 0;
     virtual nsresult NativeGetDevices(GetDevicesCallbackHandle aCallback) = 0;
+    virtual nsresult NativeConnect(nsIHidDeviceInfo* aDeviceInfo,
+                                   ConnectCallbackHandle aCallback) = 0;
 
     // Make the runnables friend class so they can call the private Native*
     // methods on HidService.

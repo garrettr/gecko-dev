@@ -9,6 +9,7 @@
 #include "HidService.h"
 #include "nsIHidService.h"
 #include "HidDeviceInfo.h"
+#include "HidConnection.h"
 
 #include "nsArrayEnumerator.h"
 #include "nsCOMArray.h"
@@ -105,6 +106,7 @@ TryGetHidStringProperty(IOHIDDeviceRef device,
     return false;
   }
   CFStringToMozString(ref, result);
+  return true;
 }
 
 // XXX: having separate Get and TryGet functions seems redundant for string properties.
@@ -217,6 +219,26 @@ MacHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
       aCallback->Callback(rv, deviceEnumerator);
     }
   ));
+
+  return NS_OK;
+}
+
+nsresult
+MacHidService::NativeConnect(nsIHidDeviceInfo* aDeviceInfo,
+                             ConnectCallbackHandle aCallback)
+{
+  LOG(("In MacHidService::NativeConnect()"));
+  MOZ_ASSERT(aDeviceInfo);
+  MOZ_ASSERT(aCallback);
+  MOZ_ASSERT(mManager);
+
+  NS_DispatchToMainThread(NS_NewRunnableFunction(
+    [aCallback] () mutable -> void {
+      LOG(("About to call aCallback on main thread..."));
+      aCallback->Callback(NS_OK, nullptr);
+    }
+  ));
+
   return NS_OK;
 }
 
