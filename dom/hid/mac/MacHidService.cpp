@@ -10,10 +10,12 @@
 #include "nsIHidService.h"
 #include "HidDeviceInfo.h"
 #include "HidConnection.h"
+#include "MacHidConnection.h"
 
 #include "nsArrayEnumerator.h"
 #include "nsCOMArray.h"
 #include "nsCOMPtr.h"
+#include "nsError.h"
 #include "nsISimpleEnumerator.h"
 
 namespace mozilla {
@@ -232,10 +234,55 @@ MacHidService::NativeConnect(nsIHidDeviceInfo* aDeviceInfo,
   MOZ_ASSERT(aCallback);
   MOZ_ASSERT(mManager);
 
+  nsresult rv = NS_OK;
+
+  // Get the registry entry for the HID device from the RegistryEntryPath
+  nsAutoCString deviceId;
+  rv = aDeviceInfo->GetDeviceId(deviceId);
+  NS_ENSURE_SUCCESS(rv, rv); // TODO handle callback in case of error
+
+  // TODO we'll need to IOObjectRelease(entry). Since there are a lot of
+  // potential failure conditions, the two obvious ways to do this are:
+  // 1. goto :/
+  // 2. RAII wrapper for the native Apple type. Is there something preexisting
+  // for this in the Mozilla codebase? Chrome has
+  // base::mac::{ScopedIOObject,ScopedCFTypeRef} and friends.
+  io_registry_entry_t entry = MACH_PORT_NULL;
+  entry = IORegistryEntryFromPath(kIOMasterPortDefault,
+                                  deviceId.get());
+  if (entry == MACH_PORT_NULL) {
+    // Path wasn't valid (maybe device was removed?)
+    // TODO: more detailed logging
+    LOG(("Failed to get IORegistryEntryFromPath"));
+    aCallback->Callback(NS_ERROR_FAILURE, nullptr);
+  }
+
+  // Create the IOHIDDevice
+  IOHIDDeviceRef deviceRef = IOHIDDeviceCreate(kCFAllocatorDefault, entry);
+  if (deviceRef == NULL) {
+    LOG(("Failed to IOHIDDeviceCreate"));
+    aCallback->Callback(NS_ERROR_FAILURE, nullptr);
+  }
+
+  // Open the IOHIDDevice
+  IOReturn ret = IOHIDDeviceOpen(deviceRef, kIOHIDOptionsTypeNone);
+  if (ret != kIOReturnSuccess) {
+    LOG(("Failed to IOHIDDeviceOpen"));
+    aCallback->Callback(NS_ERROR_FAILURE, nullptr);
+  }
+
+  // Create the MacHidConnection
+  nsCOMPtr<nsIHidConnection> conn = new MacHidConnection(deviceRef,
+                                                         aDeviceInfo);
+  if (!conn) {
+    LOG(("Failed to create new MacHidConnection"));
+    aCallback->Callback(NS_ERROR_FAILURE, nullptr);
+  }
+
   NS_DispatchToMainThread(NS_NewRunnableFunction(
-    [aCallback] () mutable -> void {
+    [aCallback, conn] () mutable -> void {
       LOG(("About to call aCallback on main thread..."));
-      aCallback->Callback(NS_OK, nullptr);
+      aCallback->Callback(NS_OK, conn);
     }
   ));
 

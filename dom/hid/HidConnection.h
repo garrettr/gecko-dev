@@ -20,7 +20,7 @@ class HidConnection : public nsIHidConnection
 
     HidConnection();
 
-  private:
+  protected:
     virtual ~HidConnection();
 };
 
