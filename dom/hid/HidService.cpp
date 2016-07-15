@@ -34,7 +34,7 @@
 namespace mozilla {
 namespace dom {
 
-// NSPR_LOG_MODULES=HidService:5
+// MOZ_LOG=HidService:5
 LazyLogModule gHidServiceLog("HidService");
 #define LOG(args) MOZ_LOG(gHidServiceLog, mozilla::LogLevel::Debug, args)
 #define LOG_ENABLED() MOZ_LOG_TEST(gHidServiceLog, mozilla::LogLevel::Debug)
