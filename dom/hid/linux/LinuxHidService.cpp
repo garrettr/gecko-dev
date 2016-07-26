@@ -16,9 +16,24 @@ extern LazyLogModule gHidServiceLog;
 #define LOG(args) MOZ_LOG(gHidServiceLog, mozilla::LogLevel::Debug, args)
 #define LOG_ENABLED() MOZ_LOG_TEST(gHidServiceLog, mozilla::LogLevel::Debug)
 
+void
+LinuxHidService::NativeInit() {
+
+}
+
+void
+LinuxHidService::NativeShutdown() {
+}
+
 nsresult
-LinuxHidService::NativeGetDevices() {
+LinuxHidService::NativeGetDevices(GetDevicesCallbackHandle aCallback) {
   // Stub, just testing the inheritance architecture right now
+  return NS_OK;
+}
+
+nsresult
+LinuxHidService::NativeConnect(nsIHidDeviceInfo* aDeviceInfo,
+                               ConnectCallbackHandle aCallback) {
   return NS_OK;
 }
 
