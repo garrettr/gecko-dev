@@ -18,10 +18,14 @@ class HidConnection : public nsIHidConnection
     NS_DECL_THREADSAFE_ISUPPORTS
     NS_DECL_NSIHIDCONNECTION
 
-    HidConnection();
-
   protected:
+    HidConnection();
     virtual ~HidConnection();
+
+  private:
+    // Plaform-specific methods
+    virtual nsresult NativeDisconnect() = 0;
+
 };
 
 } // namespace dom
