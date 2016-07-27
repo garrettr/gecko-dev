@@ -129,40 +129,5 @@ HidDeviceInfo::GetMaxFeatureReportSize(uint32_t* aMaxFeatureReportSize)
   return NS_OK;
 }
 
-// 3caf9413-dd1b-45d7-a2e9-b1f972a40a77
-#define HIDDEVICEINFO_CID                               \
-  { 0x3caf9413,                                         \
-    0xdd1b,                                             \
-    0x45d7,                                             \
-    { 0xa2, 0xe9, 0xb1, 0xf9, 0x72, 0xa4, 0x0a, 0x77 }  \
-  }
-#define HIDDEVICEINFO_CONTRACTID "@mozilla.org/dom/hid-device-info;1"
-
-// TODO This should only be construct-able from C++, it doesn't make sense to do it from JS
-// Well, it potentially might, for testing purposes, but not in normal use.
-// What invocations of macros do I need to chant?
-NS_GENERIC_FACTORY_CONSTRUCTOR(HidDeviceInfo)
-
-NS_DEFINE_NAMED_CID(HIDDEVICEINFO_CID);
-
-static const mozilla::Module::CIDEntry kHidDeviceInfoCIDs[] = {
-  { &kHIDDEVICEINFO_CID, false, nullptr, HidDeviceInfoConstructor },
-  { nullptr }
-};
-
-static const mozilla::Module::ContractIDEntry kHidDeviceInfoContracts[] = {
-  { HIDDEVICEINFO_CONTRACTID, &kHIDDEVICEINFO_CID },
-  { nullptr }
-};
-
-static const mozilla::Module kHidDeviceInfoModule = {
-  mozilla::Module::kVersion,
-  kHidDeviceInfoCIDs,
-  kHidDeviceInfoContracts,
-  nullptr
-};
-
-NSMODULE_DEFN(HidDeviceInfoModule) = &kHidDeviceInfoModule;
-
 } // namespace dom
 } // namespace mozilla

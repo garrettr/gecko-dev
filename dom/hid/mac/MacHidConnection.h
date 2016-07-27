@@ -33,6 +33,8 @@ class MacHidConnection final : public HidConnection
   private:
     ~MacHidConnection() {};
 
+    virtual nsresult NativeDisconnect() override;
+
     static void InputReportCallback(void* context,
                                     IOReturn result,
                                     void* sender,

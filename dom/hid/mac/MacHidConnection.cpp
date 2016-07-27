@@ -56,6 +56,10 @@ MacHidConnection::InputReportCallback(void* context,
   } else {
     LOG(("Got an input report!"));
   }
+
+nsresult
+MacHidConnection::NativeDisconnect()
+{
 }
 
 } // namespace dom

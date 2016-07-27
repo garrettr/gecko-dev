@@ -55,37 +55,5 @@ HidConnection::SendFeatureReport(const uint8_t* aData,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-// 9ba6015d-4154-43c1-bba7-e7a7ccf36474
-#define HIDCONNECTION_CID                               \
-  { 0x9ba6015d,                                         \
-    0x4154,                                             \
-    0x43c1,                                             \
-    { 0xbb, 0xa7, 0xe7, 0xa7, 0xcc, 0xf3, 0x64, 0x74 }  \
-  }
-#define HIDCONNECTION_CONTRACTID "@mozilla.org/dom/hid-connection;1"
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(HidConnection)
-
-NS_DEFINE_NAMED_CID(HIDCONNECTION_CID);
-
-static const mozilla::Module::CIDEntry kHidConnectionCIDs[] = {
-  { &kHIDCONNECTION_CID, false, nullptr, HidConnectionConstructor },
-  { nullptr }
-};
-
-static const mozilla::Module::ContractIDEntry kHidConnectionContracts[] = {
-  { HIDCONNECTION_CONTRACTID, &kHIDCONNECTION_CID },
-  { nullptr }
-};
-
-static const mozilla::Module kHidConnectionModule = {
-  mozilla::Module::kVersion,
-  kHidConnectionCIDs,
-  kHidConnectionContracts,
-  nullptr
-};
-
-NSMODULE_DEFN(HidConnectionModule) = &kHidConnectionModule;
-
 } // namespace dom
 } // namespace mozilla
