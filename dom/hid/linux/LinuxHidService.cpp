@@ -37,12 +37,12 @@ extern LazyLogModule gHidServiceLog;
 already_AddRefed<nsIHidDeviceInfo>
 LinuxHidService::GetHidDeviceInfo(struct udev_device *dev) {
 
-  char *saveptr = NULL;
-  char *line;
-  char *key;
-  char *value;
+  char* saveptr = NULL;
+  char* line;
+  char* key;
+  char* value;
 
-  uint16_t bus_type;
+  uint16_t busType;
 
   nsAutoCString deviceId;
   uint16_t vendorId;
@@ -55,10 +55,6 @@ LinuxHidService::GetHidDeviceInfo(struct udev_device *dev) {
   uint16_t maxInputReportSize = 0;
   uint16_t maxOutputReportSize = 0;
   uint16_t maxFeatureReportSize = 0;
-
-  int found_id = 0;
-  int found_serial = 0;
-  int found_name = 0;
 
   LOG(("Found device %s", mUdev.udev_device_get_devnode(dev)));
 
@@ -99,16 +95,11 @@ LinuxHidService::GetHidDeviceInfo(struct udev_device *dev) {
        *        type vendor   product
        * HID_ID=0003:000005AC:00008242
        */
-      int ret = sscanf(value, "%hx:%hx:%hx", &bus_type, &vendorId, &productId);
-      if (ret == 3) {
-        found_id = 1;
-      }
+      sscanf(value, "%hx:%hx:%hx", &busType, &vendorId, &productId);
     } else if (strcmp(key, "HID_NAME") == 0) {
       productName.AssignASCII(value, strlen(value));
-      found_name = 1;
     }  else if (strcmp(key, "HID_UNIQ") == 0) {
       serialNumber.AssignASCII(value, strlen(value));
-      found_serial = 1;
     }
 
     next_line:
