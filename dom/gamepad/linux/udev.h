@@ -86,6 +86,8 @@ class udev_lib {
     DLSYM(udev_device_get_property_value);
     DLSYM(udev_device_get_action);
     DLSYM(udev_device_get_sysattr_value);
+    DLSYM(udev_device_get_syspath);
+    DLSYM(udev_device_get_parent);
     DLSYM(udev_enumerate_new);
     DLSYM(udev_enumerate_unref);
     DLSYM(udev_enumerate_add_match_subsystem);
@@ -123,6 +125,8 @@ class udev_lib {
   const char* (*udev_device_get_action)(struct udev_device*);
   const char* (*udev_device_get_sysattr_value)(struct udev_device*,
                                                const char*);
+  const char* (*udev_device_get_syspath)(struct udev_device *);
+  struct udev_device* (*udev_device_get_parent)(struct udev_device *);
 
   struct udev_enumerate* (*udev_enumerate_new)(struct udev*);
   void (*udev_enumerate_unref)(struct udev_enumerate*);
