@@ -10,8 +10,12 @@
 #include "HidService.h"
 #include "nsIHidService.h"
 
+#include "mozilla/dom/udev.h"
+
 namespace mozilla {
 namespace dom {
+
+using mozilla::udev_lib;
 
 class LinuxHidService final : public HidService
 {
@@ -20,9 +24,18 @@ class LinuxHidService final : public HidService
     LinuxHidService() {};
 
   private:
+
     ~LinuxHidService() {};
 
-    virtual nsresult NativeGetDevices() override;
+    virtual void NativeInit() override;
+    virtual void NativeShutdown() override;
+    virtual nsresult NativeGetDevices(GetDevicesCallbackHandle aCallback) override;
+    virtual nsresult NativeConnect(nsIHidDeviceInfo* aDeviceInfo,
+                                   ConnectCallbackHandle aCallback) override;
+
+    already_AddRefed<nsIHidDeviceInfo> GetHidDeviceInfo(struct udev_device *dev);
+
+    udev_lib mUdev;
 };
 
 } // namespace dom
